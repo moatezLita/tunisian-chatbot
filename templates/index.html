@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tunisian Dialect Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #d50000;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            color: #555;
+            margin-top: 0;
+        }
+        
+        .header img {
+            max-width: 100px;
+            margin-bottom: 10px;
+        }
+        
+        .chat-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            max-width: 80%;
+            position: relative;
+        }
+        
+        .user-message {
+            background-color: #e1f5fe;
+            text-align: right;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+        
+        .bot-message {
+            background-color: #f5f5f5;
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+        
+        .input-container {
+            display: flex;
+        }
+        
+        #message-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            background-color: #d50000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #b71c1c;
+        }
+        
+        .transliteration {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        .script-toggle {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #666;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        
+        .language-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .language-toggle button {
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0 5px;
+            padding: 5px 10px;
+        }
+        
+        .language-toggle button.active {
+            background-color: #d50000;
+            color: white;
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 8px 12px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            max-width: 80px;
+            margin-right: auto;
+        }
+        
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #999;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: typing 1s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+            margin-right: 0;
+        }
+        
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/static/tunisian_flag.png" alt="Tunisian Flag" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMjAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2UzMGExNyIvPjxjaXJjbGUgY3g9IjE1MCIgY3k9IjEwMCIgcj0iNjAiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSIxNjUiIGN5PSIxMDAiIHI9IjUwIiBmaWxsPSIjZTMwYTE3Ii8+PHBhdGggZD0iTTE4MCA3NWwtMTYuNTQgNTAuODYtNDMuMjctMzEuNDMgNDMuMjcgMzEuNDMtMTYuNTQtNTAuODYiIGZpbGw9IiNmZmYiLz48L3N2Zz4=';">
+        <h1>Tunisian Dialect Chat</h1>
+        <p>Chat in Derja - تحكي بالدارجة التونسية</p>
+    </div>
+    
+    <div class="language-toggle">
+        <button id="both-scripts" class="active">Both Scripts</button>
+        <button id="latin-script">Latin Script</button>
+        <button id="arabic-script">Arabic Script</button>
+    </div>
+    
+    <div class="script-toggle">
+        <label>
+            <input type="checkbox" id="script-toggle"> Show transliteration
+        </label>
+    </div>
+    
+    <div class="chat-container" id="chat-container">
+        <div class="typing-indicator" id="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    
+    <div class="input-container">
+        <input type="text" id="message-input" placeholder="Type your message in Tunisian dialect...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    
+    <div class="footer">
+        <p>This chatbot understands Tunisian dialect in both Latin and Arabic scripts.</p>
+        <p>Examples: "Ahla bik" / "أهلا بيك" (Hello), "Chneya l7wel?" / "شنية الأحوال؟" (How are you?)</p>
+    </div>
+    
+    <script>
+        // Initialize with a welcome message
+        document.addEventListener('DOMContentLoaded', function() {
+            addMessage("Ahla bik! 👋 Chneya n3awnek?<br><span class='transliteration'>أهلا بيك! شنية نعاونك؟</span>", false);
+        });
+        
+        // Function to add a message to the chat
+        function addMessage(message, isUser = false) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(isUser ? 'user-message' : 'bot-message');
+            
+            // Handle newlines in the message
+            const formattedMessage = message.replace(/\n/g, '<br>');
+            messageElement.innerHTML = formattedMessage;
+            
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Toggle transliteration visibility based on checkbox
+            updateTransliterationVisibility();
+        }
+        
+        // Function to send a message
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            
+            if (message) {
+                // Add user message to chat
+                addMessage(message, true);
+                
+                // Clear input
+                messageInput.value = '';
+                
+                // Show typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                typingIndicator.style.display = 'block';
+                
+                try {
+                    // Send message to server
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            message,
+                            scriptPreference: getCurrentScriptPreference()
+                        })
+                    });
+                    
+                    // Hide typing indicator
+                    typingIndicator.style.display = 'none';
+                    
+                    const data = await response.json();
+                    
+                    // Add bot response to chat
+                    addMessage(data.response);
+                } catch (error) {
+                    // Hide typing indicator
+                    typingIndicator.style.display = 'none';
+                    
+                    console.error('Error:', error);
+                    addMessage('Sorry, there was an error processing your message.');
+                }
+            }
+        }
+        
+        // Function to get current script preference
+        function getCurrentScriptPreference() {
+            if (document.getElementById('latin-script').classList.contains('active')) {
+                return 'latin';
+            } else if (document.getElementById('arabic-script').classList.contains('active')) {
+                return 'arabic';
+            } else {
+                return 'both';
+            }
+        }
+        
+        // Function to update transliteration visibility
+        function updateTransliterationVisibility() {
+            const showTransliteration = document.getElementById('script-toggle').checked;
+            const transliterations = document.querySelectorAll('.transliteration');
+            
+            transliterations.forEach(element => {
+                element.style.display = showTransliteration ? 'block' : 'none';
+            });
+        }
+        
+        // Set up script preference buttons
+        document.getElementById('both-scripts').addEventListener('click', function() {
+            setActiveScriptButton('both-scripts');
+        });
+        
+        document.getElementById('latin-script').addEventListener('click', function() {
+            setActiveScriptButton('latin-script');
+        });
+        
+        document.getElementById('arabic-script').addEventListener('click', function() {
+            setActiveScriptButton('arabic-script');
+        });
+        
+        function setActiveScriptButton(buttonId) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.language-toggle button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Add active class to selected button
+            document.getElementById(buttonId).classList.add('active');
+            
+            // Update placeholder text based on script preference
+            const messageInput = document.getElementById('message-input');
+            if (buttonId === 'arabic-script') {
+                messageInput.placeholder = "اكتب رسالتك بالدارجة التونسية...";
+                messageInput.style.direction = "rtl";
+            } else {
+                messageInput.placeholder = "Type your message in Tunisian dialect...";
+                messageInput.style.direction = "ltr";
+            }
+        }
+        
+        // Listen for toggle changes
+        document.getElementById('script-toggle').addEventListener('change', updateTransliterationVisibility);
+        
+        // Allow sending message with Enter key
+        document.getElementById('message-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Initially hide transliterations
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTransliterationVisibility();
+        });
+        
+        // Save chat history to local storage
+        function saveChat() {
+            const chatContainer = document.getElementById('chat-container');
+            localStorage.setItem('tunisianChatHistory', chatContainer.innerHTML);
+        }
+        
+        // Load chat history from local storage
+        function loadChat() {
+            const savedChat = localStorage.getItem('tunisianChatHistory');
+            if (savedChat) {
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = savedChat;
+            }
+        }
+        
+        // Save chat before unloading the page
+        window.addEventListener('beforeunload', saveChat);
+        
+        // Load chat when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only load chat if there's no welcome message yet
+            setTimeout(function() {
+                if (document.querySelectorAll('.message').length <= 1) {
+                    loadChat();
+                }
+                updateTransliterationVisibility();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

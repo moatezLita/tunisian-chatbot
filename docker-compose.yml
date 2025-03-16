@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  chat:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./model:/app/model
+    command: --mode chat
+
+  collect-data:
+    build: .
+    volumes:
+      - ./data:/app/data
+    command: --mode collect-data
+
+  train:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./model:/app/model
+    command: --mode train --epochs 5
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  evaluate:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./model:/app/model
+    command: --mode evaluate
