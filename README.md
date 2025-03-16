@@ -1,439 +1,193 @@
-# SalesGPT - AI Sales Intelligence Platform 🚀
+# Tunisian Dialect Chat Project
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
-![React](https://img.shields.io/badge/react-v18.0+-blue.svg)
+This README provides a comprehensive guide to set up and run the Tunisian Dialect Chat project, which includes fine-tuning language models for Tunisian Arabic dialect processing and a cultural context system.
 
-SalesGPT is an AI-powered platform that revolutionizes sales outreach by generating highly personalized cold emails through intelligent company analysis. Leveraging Groq's Mixtral-8x7b-32768 model, it provides sales teams with deep insights and compelling message generation.
+## Project Overview
 
-## ✨ Features
+The Tunisian Dialect Chat project aims to create a conversational AI system that understands and responds in Tunisian Arabic dialect. It includes:
 
-- 🔍 Intelligent website analysis and data extraction
-- 💡 Advanced company insights generation
-- ✉️ Personalized cold email creation
-- 🔄 Batch processing capabilities
-- 📊 Performance tracking and analytics
+- Fine-tuning of language models on Tunisian dialect data
+- Cultural context processing for Tunisian expressions and references
+- Transliteration between Arabic and Latin scripts (Arabizi)
+- A chat interface for interacting with the model
 
-## 🏗️ System Architecture
-
-The system consists of two main components:
-
-1. **Chat Service (VPS)**: Handles all AI interactions using Groq's API
-2. **Local Application**: Contains the business logic and frontend interface
-
-### Component Distribution
-
-#### VPS Server (54.38.189.103)
-Hosts the core LLM chat service that handles all AI interactions.
-```
-chat-service/
-├── docker-compose.yml          # Container orchestration
-├── Dockerfile                  # Container build instructions
-└── app/
-    ├── main.py                # FastAPI + WebSocket implementation
-    ├── config.py              # Environment and configuration
-    └── services/
-        └── groq_client.py     # Groq API wrapper
-```
-
-#### Local Machine
-Hosts the business logic and frontend application.
-```
-salesgpt/
-├── frontend/                  # React application
-│   ├── src/
-│   │   ├── components/       # React components
-│   │   ├── services/        # API integration
-│   │   └── hooks/           # Custom React hooks
-│   └── package.json
-└── backend/                  # Business logic service
-    ├── main.py              # FastAPI application
-    ├── services/
-    │   ├── scraper.py       # Website scraping
-    │   ├── analyzer.py      # Content analysis
-    │   └── email.py         # Email generation
-    └── utils/
-        └── prompts.py       # LLM prompt templates
-```
-
-## 🚀 Getting Started
+## Setup Instructions
 
 ### Prerequisites
 
-For Docker deployment:
-- Docker and Docker Compose
-- Groq API key
-- Bash shell (for automated deployment script)
-
-For local development:
-- Python 3.8+
-- Node.js 16+
-- Docker and Docker Compose
-- Groq API key
+- Python 3.8 or higher
+- PyTorch
+- CUDA-compatible GPU (recommended for faster training)
 
 ### Installation
 
-#### Option 1: Automated Docker Deployment (Recommended)
-
-1. Clone the repository
+1. Clone the repository or download the project files to your local machine:
 ```bash
-git clone https://github.com/yourusername/salesgpt.git
-cd salesgpt
+git clone https://github.com/yourusername/tunisian-chat.git
+cd c:\Users\moate\Desktop\Tunisian-chat
 ```
 
-2. Set up environment variables
+2. Install the required dependencies:
 ```bash
-cp backend/.env.example backend/.env
-# Edit backend/.env with your configuration
+pip install torch transformers datasets pandas numpy tqdm tensorboard fastapi uvicorn python-multipart jinja2 requests
 ```
 
-3. Run the deployment script
+3. Create the necessary directories:
 ```bash
-chmod +x deploy.sh
-./deploy.sh
+mkdir -p data models resources logs
 ```
 
-The script will:
-- Check for necessary prerequisites
-- Create required Docker networks
-- Build and start all containers
-- Display service URLs and container status
-- Show real-time logs
-
-#### Option 2: Manual Setup
-
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/salesgpt.git
-cd salesgpt
-```
-
-2. Set up environment variables
-```bash
-cp backend/.env.example backend/.env
-# Edit backend/.env with your configuration
-```
-
-3. Start the services using Docker Compose
-```bash
-docker-compose up -d --build
-```
-
-4. For local development without Docker:
-```bash
-# Backend
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --port 8001
-
-# Frontend
-cd frontend
-npm install
-npm start
-```
-
-## 🛠️ Development
-
-### Project Structure
+## Project Structure
 
 ```
-salesgpt/
-├── chat-service/          # VPS AI Service
-├── frontend/             # React Application
-└── backend/             # Business Logic Service
+tunisian-chat/
+├── app.py                    # FastAPI application
+├── cultural_context.py       # Cultural context processing
+├── fine_tuning.py            # Model fine-tuning
+├── transliteration.py        # Arabic-Latin transliteration
+├── test_cultural_context.py  # Test script for cultural context
+├── create_sample_data.py     # Script to create sample data
+├── data/                     # Training and test data
+├── models/                   # Fine-tuned models
+├── resources/                # Cultural context resources
+├── logs/                     # Training and application logs
+├── static/                   # Static files for web interface
+└── templates/                # HTML templates
 ```
 
-### Deployment Steps
+## Usage Guide
 
-#### 1. VPS Deployment
-```bash
-# SSH into VPS
-ssh user@54.38.189.103
+### 1. Create Sample Data
 
-# Clone repository
-git clone your-repo-url
-cd chat-service
-
-# Set up environment
-echo "GROQ_API_KEY=your-key-here" > .env
-
-# Deploy with Docker
-docker-compose up -d
-
-# Verify deployment
-docker-compose logs -f
-```
-
-#### 2. Local Development
-```bash
-# Backend setup
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --port 8001
-
-# Frontend setup
-cd frontend
-npm install
-npm start
-```
-
-### Enhanced Deployment Script
+First, create some sample Tunisian dialect data for testing:
 
 ```bash
-#!/bin/bash
-
-# Color codes
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Configuration
-PROJECT_NAME="salesgpt"
-NETWORK_NAME="${PROJECT_NAME}-network"
-
-# Function to print colored messages
-print_message() {
-    echo -e "${2}${1}${NC}"
-}
-
-# Check if .env file exists
-if [ ! -f .env ]; then
-    print_message "❌ .env file not found! Please create one from .env.example" "$RED"
-    exit 1
-fi
-
-# Check if Docker is running
-if ! docker info > /dev/null 2>&1; then
-    print_message "❌ Docker is not running. Please start Docker first!" "$RED"
-    exit 1
-fi
-
-# Create network if it doesn't exist
-if ! docker network inspect $NETWORK_NAME >/dev/null 2>&1; then
-    print_message "🌐 Creating Docker network: $NETWORK_NAME" "$YELLOW"
-    docker network create $NETWORK_NAME
-fi
-
-# Stop and remove existing containers
-print_message "🔍 Checking for running containers..." "$YELLOW"
-docker-compose down -v 2>/dev/null
-
-# Remove existing images
-print_message "🗑️ Removing existing images..." "$YELLOW"
-docker-compose rm -f 2>/dev/null
-
-# Build and start containers
-print_message "🏗️ Building and starting containers..." "$YELLOW"
-docker-compose up -d --build
-
-# Check if containers are running
-if [ $? -eq 0 ]; then
-    print_message "✅ Deployment successful!" "$GREEN"
-    print_message "📋 Services:" "$GREEN"
-    echo "- API: http://localhost:8000"
-    echo "- API Docs: http://localhost:8000/docs"
-    echo "- MongoDB: mongodb://localhost:27017"
-    
-    print_message "\n📊 Container Status:" "$YELLOW"
-    docker-compose ps
-    
-    print_message "\n📜 Logs will appear below (Ctrl+C to exit):" "$YELLOW"
-    docker-compose logs -f
-else
-    print_message "❌ Deployment failed!" "$RED"
-    exit 1
-fi
+python c:\Users\moate\Desktop\Tunisian-chat\create_sample_data.py
 ```
 
-## 🔧 Customization
+### 2. Initialize Cultural Context
 
-SalesGPT can be customized for different business use cases:
+Initialize and test the cultural context system:
 
-### Business Use Cases
-
-#### 1. Software and SaaS Sales
-- **Target**: Software companies, startups, tech products
-- **Customization**:
-  - Modify scraper to detect tech stack information
-  - Add pricing page analysis
-  - Focus on technical pain points
-
-#### 2. Real Estate Agents
-- **Target**: Property listings, real estate agencies
-- **Customization**:
-  - Adapt scraper for property details
-  - Add location-based analysis
-  - Focus on property features and market comparisons
-
-#### 3. Recruitment and HR
-- **Target**: Company career pages, LinkedIn profiles
-- **Customization**:
-  - Modify scraper for job postings and company culture
-  - Add team size analysis
-  - Focus on growth indicators
-
-#### 4. Digital Marketing Agencies
-- **Target**: Business websites needing marketing services
-- **Customization**:
-  - Add SEO analysis components
-  - Include social media presence checking
-  - Focus on digital marketing gaps
-
-### Configuration Options
-
-#### 1. Industry Settings (.env)
-```env
-INDUSTRY_TYPE=saas|real_estate|recruitment|marketing
-ANALYSIS_DEPTH=basic|detailed|comprehensive
-CUSTOM_METRICS=growth,pricing,technology,location
+```bash
+python c:\Users\moate\Desktop\Tunisian-chat\test_cultural_context.py
 ```
 
-#### 2. Analysis Parameters (config.py)
+### 3. Fine-tune the Model
+
+Edit the fine_tuning.py file to use your data files and run:
+
+```bash
+python c:\Users\moate\Desktop\Tunisian-chat\fine_tuning.py
+```
+
+For a quick test with minimal resources, modify the main section of fine_tuning.py:
+
 ```python
-ANALYSIS_CONFIG = {
-    'max_urls_per_batch': 50,
-    'analysis_timeout': 300,
-    'priority_metrics': ['market_position', 'growth_indicators', 'pain_points'],
-    'custom_metrics': ['your_custom_metric']
-}
+if __name__ == "__main__":
+    # Example usage
+    fine_tuner = TunisianDialectFineTuner(base_model="distilgpt2")  # Smaller model for testing
+    
+    # Example data files
+    data_files = [
+        "c:/Users/moate/Desktop/Tunisian-chat/data/tunisian_sample.csv"
+    ]
+    
+    # Run fine-tuning pipeline with smaller parameters
+    results = fine_tuner.run_fine_tuning_pipeline(
+        data_files, 
+        epochs=1,
+        batch_size=2,
+        learning_rate=5e-5
+    )
+    
+    print(f"Fine-tuning completed. Model saved at: {results['model_path']}")
 ```
 
-## 📊 Core Features
+### 4. Run the Web Application
 
-### 1. Company Analysis
-- Website content scraping
-- Key information extraction
-- Industry and market analysis
-- Competitor identification
-- Tech stack detection
+Start the FastAPI application:
 
-### 2. Email Generation
-- Personalized opening lines
-- Value proposition alignment
-- Pain point addressing
-- Call-to-action optimization
-- A/B testing variations
+```bash
+python -m uvicorn app:app --reload
+```
 
-### 3. Batch Processing
-- Multiple company analysis
-- Bulk email generation
-- Performance tracking
-- Export capabilities
+Then open your browser and navigate to http://localhost:8000
 
-## 💰 Monetization Strategy
+## Model Training Details
 
-### 1. Pricing Tiers
+### Data Requirements
 
-Basic ($99/month):
-- 100 analyses/month
-- Basic email templates
-- CSV export
+For effective fine-tuning, you'll need:
 
-Pro ($299/month):
-- 500 analyses/month
-- Advanced personalization
-- API access
-- Team collaboration
+- Tunisian dialect text data (conversations, social media posts, etc.)
+- At least a few hundred samples for minimal testing
+- Several thousand samples for better results
 
-Enterprise ($999+/month):
-- Unlimited analyses
-- Custom templates
-- Priority support
-- Advanced analytics
+### Training Parameters
 
-### 2. Marketing Plan
+Adjust these parameters in fine_tuning.py based on your resources:
 
-1. LinkedIn Campaign
-- Share success stories
-- Post engagement statistics
-- Educational content
+- **epochs**: Number of training epochs (3-5 recommended)
+- **batch_size**: Batch size for training (adjust based on GPU memory)
+- **learning_rate**: Learning rate for training (5e-5 is a good starting point)
+- **base_model**: Base model to fine-tune (smaller models like "distilgpt2" for testing, larger models like "facebook/opt-350m" for better results)
 
-2. Free Trial Program
-- 10 free analyses
-- Response rate tracking
-- Case study creation
+### Estimated Training Time
 
-3. Partnership Program
-- Agency collaborations
-- Affiliate marketing
-- Integration partners
+Training time depends on:
 
-## 📈 Project Progress
+- Data size
+- Model size
+- Hardware (GPU vs CPU)
 
-### ✅ Completed Components
+Approximate estimates:
 
-- Backend infrastructure setup
-- Core services implementation
-- Basic API endpoints
-- Initial testing
+- Small test (distilgpt2, 100 samples, 1 epoch): 5-10 minutes on CPU
+- Full training (opt-350m, 5000 samples, 3 epochs): 2-8 hours on GPU
 
-### 🚧 In Progress
+## Customization
 
-- Backend enhancements (rate limiting, validation)
-- Comprehensive test suite
+### Adding Cultural Context
 
-### ❌ Pending Tasks
+Edit the cultural_context.py file to add more Tunisian cultural references:
 
-- Frontend development
-- Authentication & authorization
-- Advanced features implementation
-- Performance optimization
-- Documentation completion
-- Monitoring & logging setup
-- Production deployment
+```python
+context.add_cultural_entity(
+    category="expressions",
+    entity="new_expression",
+    meaning="Meaning of the expression",
+    context="Cultural context of the expression",
+    variations=["variation1", "variation2"])
+```
 
-### 🎯 Next Priority Tasks
+### Improving Transliteration
 
-1. Frontend Development
-2. Authentication System
-3. Documentation
-4. Testing Enhancement
+Edit the mapping in transliteration.py to improve Arabic-Latin script conversion.
 
-## 📝 API Documentation
+## Troubleshooting
 
-API documentation is available at `http://localhost:8001/docs` after starting the backend service.
+### Common Issues
 
-## 🤝 Contributing
+**Out of memory errors during training:**
+- Reduce batch size
+- Use a smaller model
+- Reduce sequence length
 
-We welcome contributions! Please check out our [Contributing Guide](CONTRIBUTING.md) for guidelines on how to proceed.
+**Slow training on CPU:**
+- Use a GPU if available
+- Reduce model size
+- Use fewer training samples for testing
 
-### Development Process
+**Model not understanding Tunisian dialect:**
+- Ensure your training data is high-quality Tunisian dialect
+- Increase the amount of training data
+- Train for more epochs
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## Contributing
 
-## 📝 License
+Contributions to improve the Tunisian Dialect Chat project are welcome! Please feel free to submit pull requests or open issues to suggest improvements.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## License
 
-## 🌟 Support
-
-If you find this project helpful, please consider giving it a star ⭐️
-
-## 🔒 Security
-
-For security concerns, please email security@yourdomain.com.
-
-## 📧 Contact
-
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter)
-
-Project Link: [https://github.com/yourusername/salesgpt](https://github.com/yourusername/salesgpt)
-
-## 🙏 Acknowledgments
-
-- [Groq](https://groq.com/) for their powerful LLM infrastructure
-- [FastAPI](https://fastapi.tiangolo.com/) for the backend framework
-- [React](https://reactjs.org/) for the frontend framework
-
-## 📈 Roadmap
-
-- [ ] Enhanced email personalization
-- [ ] Integration with popular CRM systems
-- [ ] Advanced analytics dashboard
-- [ ] Multi-language support
-- [ ] Custom template builder
+This project is licensed under the MIT License - see the LICENSE file for details.
